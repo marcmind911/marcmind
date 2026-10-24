@@ -18,8 +18,7 @@ MIDDLEWARE = ["django.middleware.security.SecurityMiddleware", "whitenoise.middl
 ROOT_URLCONF = "config.urls"
 TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "DIRS": [BASE_DIR / "templates"], "APP_DIRS": True, "OPTIONS": {"context_processors": ["django.template.context_processors.request", "django.contrib.auth.context_processors.auth", "django.contrib.messages.context_processors.messages"]}}]
 WSGI_APPLICATION = "config.wsgi.application"
-<<<<<<< HEAD
-=======
+
 DATABASE_URL_VARIABLES = (
     "DATA_DATABASE_URL",
     "DATA_POSTGRES_PRISMA_URL",
@@ -80,7 +79,7 @@ if DATABASES is None:
         "or DATA_DATABASE_URL with your Neon connection string."
     )
 
->>>>>>> e115ff5ed2822e5782dedc4e5cdbed37526b32cd
+
 
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"}, {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"}, {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}, {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}]
 LANGUAGE_CODE = "en"
@@ -120,12 +119,12 @@ SITE_URL = os.environ.get(
     "SITE_URL",
     "http://127.0.0.1:8000"
 )
-<<<<<<< HEAD
+
 CSRF_TRUSTED_ORIGINS = ["https://marcmind.com","https://",  "https://*.vercel.app",]
-=======
+
 CSRF_TRUSTED_ORIGINS = [
     "https://marcmind.com",
     "https://www.marcmind.com",
     "https://*.vercel.app",
 ]
->>>>>>> e115ff5ed2822e5782dedc4e5cdbed37526b32cd
+
