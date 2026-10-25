@@ -22,6 +22,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASE_URL_VARIABLES = (
     "DATABASE_URL",
+    "DATABASE_URL_UNPOOLED",
     "POSTGRES_URL",
     "POSTGRES_URL_NON_POOLING",
     "POSTGRES_PRISMA_URL",
@@ -91,12 +92,14 @@ if DATABASES is None:
         }
 
 if DATABASES is None:
-    from django.core.exceptions import ImproperlyConfigured
-
-    raise ImproperlyConfigured(
-        "A PostgreSQL database URL is required. Configure DATABASE_URL "
-        "or DATA_DATABASE_URL with your Neon connection string."
-    )
+    # Keep local and preview startup working when no Neon variable is injected.
+    # Production uses Neon automatically whenever DATABASE_URL or the PG fields exist.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 

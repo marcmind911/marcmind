@@ -129,6 +129,21 @@ def whatsapp(request):
     if not Purchase.objects.filter(user=request.user, status=Purchase.Status.PAID).exists(): return redirect("dashboard")
     return redirect(f"https://wa.me/{settings.WHATSAPP_NUMBER}?text=Bonjour%20MarcMind%2C%20je%20viens%20de%20m%27inscrire.")
 @login_required
+def dashboard(request):
+    return render(
+        request,
+        "dashboard.html",
+        {
+            "purchases": Purchase.objects.filter(
+                user=request.user,
+                status=Purchase.Status.PAID,
+            ).select_related("service"),
+            "services": Service.objects.filter(active=True),
+        },
+    )
+
+
+@login_required
 def booking(request):
     services = Service.objects.filter(active=True)
     return render(request,"Booking.html",{ "purchases": Purchase.objects.filter(user=request.user,status=Purchase.Status.PAID),"services": services })
