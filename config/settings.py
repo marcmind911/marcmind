@@ -13,7 +13,22 @@ DEBUG = (
     os.environ.get("DEBUG", "False").lower() == "true"
     and os.environ.get("VERCEL") != "1"
 )
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS","marcmind.com,www.marcmind.com").split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "marcmind.com,www.marcmind.com,.vercel.app",
+    ).split(",")
+    if host.strip()
+]
+
+# Vercel provides the active deployment hostname at runtime. Include it so
+# Django does not reject preview and production requests before authentication.
+for runtime_host in (os.environ.get("VERCEL_URL"), os.environ.get("VERCEL_PROJECT_PRODUCTION_URL")):
+    if runtime_host:
+        runtime_host = runtime_host.split(":", 1)[0].strip()
+        if runtime_host and runtime_host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(runtime_host)
 INSTALLED_APPS = ["django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles", "core"]
 MIDDLEWARE = ["django.middleware.security.SecurityMiddleware", "whitenoise.middleware.WhiteNoiseMiddleware", "django.contrib.sessions.middleware.SessionMiddleware", "django.middleware.common.CommonMiddleware", "django.middleware.csrf.CsrfViewMiddleware", "django.contrib.auth.middleware.AuthenticationMiddleware", "django.contrib.messages.middleware.MessageMiddleware", "django.middleware.clickjacking.XFrameOptionsMiddleware"]
 ROOT_URLCONF = "config.urls"
