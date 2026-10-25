@@ -17,7 +17,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         "ALLOWED_HOSTS",
-        "marcmind.com,www.marcmind.com,marcmind-hxw2.vercel.app/",
+        "marcmind.com,www.marcmind.com,marcmind-hxw2.vercel.app",
     ).split(",")
     if host.strip()
 ]
