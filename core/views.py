@@ -173,44 +173,6 @@ def mentorship(request):
 def library(request):
     return render(request, "library.html")
 
-def username_reminder(request):
+# The first implementation above is the canonical reminder flow. Keep one view
+# definition so Django always renders the template that exists in the app.
 
-    if request.method == "POST":
-
-        form = UsernameReminderForm(request.POST)
-
-        if form.is_valid():
-
-            email = form.cleaned_data["email"]
-
-            users = User.objects.filter(
-                email__iexact=email
-            )
-
-            if users.exists():
-
-                for user in users:
-
-                    send_mail(
-                        subject="Your Username",
-                        message=(
-                            f"Hello {user.get_full_name() or user.username},\n\n"
-                            f"Your username is: {user.username}\n\n"
-                            "You can now use this username to log in."
-                        ),
-                        from_email=None,
-                        recipient_list=[user.email],
-                        fail_silently=False,
-                    )
-
-            return redirect("username_reminder_done")
-
-    else:
-
-        form = UsernameReminderForm()
-
-    return render(
-        request,
-        "username_reminder.html",
-        {"form": form}
-    )

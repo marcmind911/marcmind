@@ -7,11 +7,6 @@ class SignUpForm(UserCreationForm):
     class Meta: model = User; fields = ("username", "email", "password1", "password2")
 
 class UsernameReminderForm(forms.Form):
-    email = forms.EmailField()
-
-
-class UsernameReminderForm(forms.Form):
-
     email = forms.EmailField(
         label="Email address",
         widget=forms.EmailInput(
