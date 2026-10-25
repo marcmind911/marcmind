@@ -37,8 +37,9 @@ def username_reminder(request):
         return redirect("login")
     return render(request, "registration/username_reminder.html", {"form": form})
 @login_required
-def dashboard(request): return render(request, "dashboard.html", {"purchases": Purchase.objects.filter(user=request.user, status=Purchase.Status.PAID), "services": Service.objects.filter(active=True)})
 def checkout(request, service_id, provider):
+    if provider != "stripe":
+        provider = "paystack"
     service = get_object_or_404(Service, id=service_id, active=True); reference = uuid.uuid4().hex
     purchase = Purchase.objects.create(user=request.user, service=service, provider=provider, reference=reference)
     if provider == "stripe":
@@ -59,7 +60,7 @@ def checkout(request, service_id, provider):
                             "price_data": {
                                 "currency": service.currency.lower(),
                                 "product_data": {"name": service.name},
-                                "unit_amount": service.amount * 100,
+                                "unit_amount": service.amount,
                             },
                             "quantity": 1,
                         }
@@ -142,7 +143,17 @@ def english(request):
     return render(request,"landing.html")
 @login_required
 def mentorship(request):
-    return render(request, "mentorship.html")
+    return render(
+        request,
+        "mentorship.html",
+        {
+            "purchase": Purchase.objects.filter(
+                user=request.user,
+                status=Purchase.Status.PAID,
+            ).select_related("service"),
+            "services": Service.objects.filter(active=True),
+        },
+    )
 @login_required
 def library(request):
     return render(request, "library.html")
