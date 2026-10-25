@@ -13,14 +13,13 @@ DEBUG = (
     os.environ.get("DEBUG", "False").lower() == "true"
     and os.environ.get("VERCEL") != "1"
 )
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "ALLOWED_HOSTS",
-        "marcmind.com,www.marcmind.com,marcmind-hxw2.vercel.app",
-    ).split(",")
+ALLOWED_HOSTS = {
+    host.strip().lower()
+    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
     if host.strip()
-]
+}
+ALLOWED_HOSTS.update({"marcmind.com", "www.marcmind.com", "localhost", "127.0.0.1"})
+ALLOWED_HOSTS = list(ALLOWED_HOSTS)
 
 # Vercel provides the active deployment hostname at runtime. Include it so
 # Django does not reject preview and production requests before authentication.
