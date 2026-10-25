@@ -7,6 +7,7 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.development.local")
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-development-key")
 DEBUG = (
     os.environ.get("DEBUG", "False").lower() == "true"
@@ -20,11 +21,15 @@ TEMPLATES = [{"BACKEND": "django.template.backends.django.DjangoTemplates", "DIR
 WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASE_URL_VARIABLES = (
+    "DATABASE_URL",
+    "POSTGRES_URL",
+    "POSTGRES_URL_NON_POOLING",
+    "POSTGRES_PRISMA_URL",
+    "POSTGRES_URL_NO_SSL",
     "DATA_DATABASE_URL",
     "DATA_POSTGRES_PRISMA_URL",
     "DATA_POSTGRES_URL",
     "DATA_POSTGRES_URL_NON_POOLING",
-    "DATABASE_URL",
 )
 DATABASES = None
 
@@ -48,15 +53,29 @@ if DATABASES is None:
     database_host = (
         os.environ.get("DATA_PGHOST")
         or os.environ.get("DATA_PGHOST_UNPOOLED")
+        or os.environ.get("PGHOST")
+        or os.environ.get("PGHOST_UNPOOLED")
         or os.environ.get("DB_HOST")
     )
     database_name = (
         os.environ.get("DATA_PGDATABASE")
         or os.environ.get("DATA_POSTGRES_DATABASE")
+        or os.environ.get("PGDATABASE")
+        or os.environ.get("POSTGRES_DATABASE")
         or os.environ.get("DB_NAME")
     )
-    database_user = os.environ.get("DATA_PGUSER") or os.environ.get("DB_USER")
-    database_password = os.environ.get("DATA_PGPASSWORD") or os.environ.get("DB_PASSWORD")
+    database_user = (
+        os.environ.get("DATA_PGUSER")
+        or os.environ.get("PGUSER")
+        or os.environ.get("POSTGRES_USER")
+        or os.environ.get("DB_USER")
+    )
+    database_password = (
+        os.environ.get("DATA_PGPASSWORD")
+        or os.environ.get("PGPASSWORD")
+        or os.environ.get("POSTGRES_PASSWORD")
+        or os.environ.get("DB_PASSWORD")
+    )
 
     if all((database_host, database_name, database_user, database_password)):
         database_url = (
