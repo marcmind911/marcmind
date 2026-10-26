@@ -15,7 +15,7 @@ DEBUG = (
 )
 ALLOWED_HOSTS = {
     host.strip().lower()
-    for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
+    for host in os.environ.get("marcmind-hxw2.vercel.app", "marcmind-hxw2-3bw491cm1-e-tech10.vercel.app").split(",")
     if host.strip()
 }
 ALLOWED_HOSTS.update({"marcmind.com", "www.marcmind.com","marcmind-hxw2.vercel.app"})
