@@ -15,7 +15,7 @@ DEBUG = (
 )
 ALLOWED_HOSTS = {
     host.strip().lower()
-    for host in os.environ.get("marcmind-hxw2.vercel.app", "marcmind-hxw2-3bw491cm1-e-tech10.vercel.app").split(",")
+    for host in os.environ.get("ALLOWED_HOSTS", "marcmind-hxw2-3bw491cm1-e-tech10.vercel.app").split(",")
     if host.strip()
 }
 ALLOWED_HOSTS.update({"marcmind.com", "www.marcmind.com","marcmind-hxw2.vercel.app"})
@@ -53,19 +53,31 @@ for variable_name in DATABASE_URL_VARIABLES:
     if not database_url:
         continue
 
+    # Some Vercel environment exports can lose the PostgreSQL scheme while
+    # preserving the rest of the connection string. Restore the scheme so a
+    # malformed variable cannot crash Django during startup.
+    if database_url.startswith("://"):
+        database_url = f"postgresql{database_url}"
+    elif "//" in database_url and not database_url.startswith(("postgres://", "postgresql://")):
+        database_url = f"postgresql://{database_url.split('//', 1)[1]}"
+
     # Neon requires TLS. Add it when a provider-supplied URL omits the
     # parameter, while preserving any explicit connection options.
     if database_url.startswith(("postgres://", "postgresql://")) and "sslmode=" not in database_url:
         database_url = f"{database_url}{'&' if '?' in database_url else '?'}sslmode=require"
 
-    database_config = dj_database_url.parse(
-        database_url,
-        # Vercel functions are short-lived and may resume with a stale
-        # PostgreSQL socket. Open a fresh connection per request instead of
-        # reusing a connection that Neon has already closed.
-        conn_max_age=0,
-        conn_health_checks=True,
-    )
+    try:
+        database_config = dj_database_url.parse(
+            database_url,
+            # Vercel functions are short-lived and may resume with a stale
+            # PostgreSQL socket. Open a fresh connection per request instead of
+            # reusing a connection that Neon has already closed.
+            conn_max_age=0,
+            conn_health_checks=True,
+        )
+    except (ValueError, dj_database_url.UnknownSchemeError):
+        continue
+
     if database_config["ENGINE"] == "django.db.backends.postgresql":
         DATABASES = {"default": database_config}
         break
@@ -105,13 +117,17 @@ if DATABASES is None:
             f"postgresql://{quote_plus(database_user)}:{quote_plus(database_password)}"
             f"@{database_host}/{quote_plus(database_name)}?sslmode=require"
         )
-        DATABASES = {
-            "default": dj_database_url.parse(
+        try:
+            database_config = dj_database_url.parse(
                 database_url,
                 conn_max_age=600,
                 conn_health_checks=True,
             )
-        }
+        except (ValueError, dj_database_url.UnknownSchemeError):
+            database_config = None
+
+        if database_config and database_config["ENGINE"] == "django.db.backends.postgresql":
+            DATABASES = {"default": database_config}
 
 if DATABASES is None:
     # Keep local and preview startup working when no Neon variable is injected.
