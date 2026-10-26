@@ -53,6 +53,11 @@ for variable_name in DATABASE_URL_VARIABLES:
     if not database_url:
         continue
 
+    # Neon requires TLS. Add it when a provider-supplied URL omits the
+    # parameter, while preserving any explicit connection options.
+    if database_url.startswith(("postgres://", "postgresql://")) and "sslmode=" not in database_url:
+        database_url = f"{database_url}{'&' if '?' in database_url else '?'}sslmode=require"
+
     database_config = dj_database_url.parse(
         database_url,
         conn_max_age=600,
