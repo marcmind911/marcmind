@@ -18,7 +18,7 @@ ALLOWED_HOSTS = {
     for host in os.environ.get("ALLOWED_HOSTS", "").split(",")
     if host.strip()
 }
-ALLOWED_HOSTS.update({"marcmind.com", "www.marcmind.com", "localhost", "127.0.0.1"})
+ALLOWED_HOSTS.update({"marcmind.com", "www.marcmind.com","marcmind-hxw2.vercel.app"})
 ALLOWED_HOSTS = list(ALLOWED_HOSTS)
 
 # Vercel provides the active deployment hostname at runtime. Include it so
