@@ -60,7 +60,10 @@ for variable_name in DATABASE_URL_VARIABLES:
 
     database_config = dj_database_url.parse(
         database_url,
-        conn_max_age=600,
+        # Vercel functions are short-lived and may resume with a stale
+        # PostgreSQL socket. Open a fresh connection per request instead of
+        # reusing a connection that Neon has already closed.
+        conn_max_age=0,
         conn_health_checks=True,
     )
     if database_config["ENGINE"] == "django.db.backends.postgresql":
